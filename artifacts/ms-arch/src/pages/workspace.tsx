@@ -150,11 +150,23 @@ async function callRunAgent(input: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
+  const body = await res.json().catch(() => null);
   if (!res.ok) {
-    const body = await res.json().catch(() => ({ error: "Request failed" }));
-    throw new Error((body as { error?: string }).error ?? "Request failed");
+    // If our API returned a structured error with a text field, surface it
+    if (body && typeof (body as { text?: string }).text === "string") {
+      return {
+        agentId: input.agentId,
+        text: (body as { text: string }).text,
+        error: true,
+      };
+    }
+    const msg =
+      typeof (body as { error?: string })?.error === "string"
+        ? (body as { error: string }).error
+        : `HTTP ${res.status}`;
+    throw new Error(msg);
   }
-  return res.json();
+  return body as { agentId: TabId; text: string; error: boolean };
 }
 
 export function WorkspacePage() {
