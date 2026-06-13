@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: agents
+    description: AI agent operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /run-agent:
+    post:
+      operationId: runAgent
+      tags: [agents]
+      summary: Run an AI agent
+      description: Calls Azure AI Foundry to generate architecture content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentInput"
+      responses:
+        "200":
+          description: Agent result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentResult"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +66,42 @@ components:
           type: string
       required:
         - status
-
+    AgentInput:
+      type: object
+      required:
+        - agentId
+        - concept
+        - stack
+      properties:
+        agentId:
+          type: string
+          enum: [architecture, schema, readme, prompt]
+        concept:
+          type: string
+          minLength: 3
+        stack:
+          type: string
+          minLength: 1
+        deepThink:
+          type: boolean
+          default: false
+    AgentResult:
+      type: object
+      required:
+        - agentId
+        - text
+        - error
+      properties:
+        agentId:
+          type: string
+        text:
+          type: string
+        error:
+          type: boolean
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
