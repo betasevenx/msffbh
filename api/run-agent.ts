@@ -1,3 +1,5 @@
+/// <reference types="node" />
+/// <reference lib="dom" />
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 const AGENT_IDS = ["architecture", "schema", "readme", "prompt"] as const;
