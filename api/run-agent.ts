@@ -62,7 +62,7 @@ async function callAzureFoundry(
   const endpoint = process.env["AZURE_FOUNDRY_ENDPOINT"];
   const apiKey = process.env["AZURE_FOUNDRY_API_KEY"];
   const deployment = process.env["AZURE_FOUNDRY_DEPLOYMENT"];
-  const apiVersion = process.env["AZURE_FOUNDRY_API_VERSION"] ?? "2024-10-21";
+  const apiVersion = process.env["AZURE_FOUNDRY_API_VERSION"] ?? "2024-05-01-preview";
 
   if (!endpoint || !apiKey || !deployment) {
     throw new Error(
