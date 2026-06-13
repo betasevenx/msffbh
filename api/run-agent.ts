@@ -71,11 +71,24 @@ async function callAzureFoundry(
   }
 
   const base = endpoint.replace(/\/+$/, "");
-  const url = `${base}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
+
+  // Azure OpenAI endpoints look like *.openai.azure.com
+  // Azure AI Foundry serverless endpoints look like *.models.ai.azure.com or similar
+  const isOpenAI = base.includes(".openai.azure.com");
+  const url = isOpenAI
+    ? `${base}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`
+    : `${base}/chat/completions`;
+
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (isOpenAI) {
+    headers["api-key"] = apiKey;
+  } else {
+    headers["Authorization"] = `Bearer ${apiKey}`;
+  }
 
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "api-key": apiKey },
+    headers,
     body: JSON.stringify({
       messages: [
         { role: "system", content: system },
